@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>kh_extrafield</name>
+	<displayName><![CDATA[KH Extra Product Field]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[KH Extra Product Field - Task 4]]></description>
+	<author><![CDATA[sHKamil - Kamil Hałasa]]></author>
+	<tab><![CDATA[front_office_features]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
