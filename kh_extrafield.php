@@ -28,6 +28,9 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use PrestaShop\Module\Kh_extrafield\Form\ProductFormModifier;
+use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
+
 class Kh_extrafield extends Module
 {
     protected $config_form = false;
@@ -54,10 +57,14 @@ class Kh_extrafield extends Module
     {
         Configuration::updateValue('KH_EXTRAFIELD_LIVE_MODE', false);
 
-        return parent::install() &&
-            $this->registerHook('header') &&
-            $this->registerHook('displayBackOfficeHeader') &&
-            $this->registerHook('actionAdminControllerSetMedia');
+        include(dirname(__FILE__).'/sql/install.php');
+        
+        return parent::install() 
+                && $this->registerHook(['actionProductFormBuilderModifier'])
+                && $this->registerHook(['actionProductSave'])
+                && $this->registerHook(['displayProductAdditionalInfo'])
+                && $this->registerHook(['hookHeader'])
+                && $this->registerHook('header');
     }
 
     public function uninstall()
@@ -166,14 +173,51 @@ class Kh_extrafield extends Module
         }
     }
 
+    public function hookActionProductFormBuilderModifier(array $params): void
+    {
+        /** @var ProductFormModifier $productFormModifier */
+        $translator = $this->getContainer()->get('translator');
+        $formBuilderModifier = $this->getContainer()->get('form.form_builder_modifier');
+
+
+
+        // Manually inject dependencies into ProductFormModifier service
+        $productFormModifier = new ProductFormModifier($translator, $formBuilderModifier);
+        $productId = isset($params['id']) ? new ProductId((int) $params['id']) : null;
+        
+        $sql = 'SELECT extrafield FROM ps_kh_extrafield WHERE id_product = ' . (int) $productId->getValue();
+        $extrafield = Db::getInstance()->getValue($sql);
+        if(!$extrafield) $extrafield = "";
+        $productFormModifier->modify($productId, $params['form_builder'], $extrafield);
+    }
+
+    public function hookActionProductSave(array $params): void
+    {
+        $productData = Tools::getValue('product');
+        $kh_extrafield = $productData['description']['kh_extrafield'];
+        $idProduct = $params['id_product'];
+
+        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'kh_extrafield` (`id_product`, `extrafield`) 
+                VALUES (' . (int) $idProduct . ', \'' . pSQL($kh_extrafield) . '\') 
+                ON DUPLICATE KEY UPDATE `extrafield` = \'' . pSQL($kh_extrafield) . '\'';
+
+        Db::getInstance()->execute($sql);
+    }
+
     public function hookHeader()
     {
         $this->context->controller->addJS($this->_path.'views/js/front.js');
         $this->context->controller->addCSS($this->_path.'views/css/front.css');
     }
 
-    public function hookActionAdminControllerSetMedia()
+    public function hookDisplayProductAdditionalInfo($params)
     {
-        /*  */
+        $productId = $params['product'];
+        $sql = 'SELECT extrafield FROM ps_kh_extrafield WHERE id_product = ' . (int) $productId->id;
+        $extrafield = Db::getInstance()->getValue($sql);
+        if(!$extrafield) $extrafield = "";
+        $this->context->smarty->assign('extrafield', $extrafield);
+        
+        return $this->display($this->_path, 'views/templates/front/catalog/product.tpl');
     }
 }

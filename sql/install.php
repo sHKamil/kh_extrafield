@@ -23,11 +23,13 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-$sql = array();
+$sql = [];
+
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'kh_extrafield` (
-    `id_kh_extrafield` int(11) NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY  (`id_kh_extrafield`)
+    `id_product` int(11) NOT NULL,
+    `extrafield` varchar(5000) NOT NULL,
+    PRIMARY KEY  (`id_product`)
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
 foreach ($sql as $query) {
@@ -35,3 +37,4 @@ foreach ($sql as $query) {
         return false;
     }
 }
+

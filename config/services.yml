@@ -1,0 +1,3 @@
+services:
+    PrestaShop\Module\Kh_extrafield\Form\ProductFormModifier:
+        public: true

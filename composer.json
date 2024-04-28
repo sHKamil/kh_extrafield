@@ -1,0 +1,15 @@
+{
+    "name": "kamil/kh_extrafield",
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\Module\\Kh_extrafield\\Form\\": "Form"
+        }
+    },
+    "authors": [
+        {
+            "name": "sHKamil",
+            "email": "shootekb@gmail.com"
+        }
+    ],
+    "require": {}
+}
