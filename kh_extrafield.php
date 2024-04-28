@@ -185,7 +185,7 @@ class Kh_extrafield extends Module
         $productFormModifier = new ProductFormModifier($translator, $formBuilderModifier);
         $productId = isset($params['id']) ? new ProductId((int) $params['id']) : null;
         
-        $sql = 'SELECT extrafield FROM ps_kh_extrafield WHERE id_product = ' . (int) $productId->getValue();
+        $sql = 'SELECT extrafield FROM ' . _DB_PREFIX_ . 'kh_extrafield WHERE id_product = ' . (int) $productId->getValue();
         $extrafield = Db::getInstance()->getValue($sql);
         if(!$extrafield) $extrafield = "";
         $productFormModifier->modify($productId, $params['form_builder'], $extrafield);
@@ -213,7 +213,7 @@ class Kh_extrafield extends Module
     public function hookDisplayProductAdditionalInfo($params)
     {
         $productId = $params['product'];
-        $sql = 'SELECT extrafield FROM ps_kh_extrafield WHERE id_product = ' . (int) $productId->id;
+        $sql = 'SELECT extrafield FROM ' . _DB_PREFIX_ . 'kh_extrafield WHERE id_product = ' . (int) $productId->id;
         $extrafield = Db::getInstance()->getValue($sql);
         if(!$extrafield) $extrafield = "";
         $this->context->smarty->assign('extrafield', $extrafield);
